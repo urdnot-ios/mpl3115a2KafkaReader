@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: mpl3115Reader.yaml
+  name: iot-mpl3115-kafka-reader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: iot-mpl3115-kafka-reader
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: iot-mpl3115-kafka-reader
+    spec:
+      containers:
+        - image: intel-server-03:5000/mpl3115a2kafkareader
+          name: iot-mpl3115-kafka-reader
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_TOPIC
+              value: MPL3115A2
+            - name: INFLUX_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: influx-secrets
+                  key: username
+            - name: INFLUX_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: influx-secrets
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: kafka-config
+            - configMapRef:
+                name: influx-config
